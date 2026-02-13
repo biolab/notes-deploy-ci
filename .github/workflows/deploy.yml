@@ -1,0 +1,31 @@
+name: Shared Deploy Workflow
+
+on:
+  workflow_call:
+    secrets:
+      SSH_KEY:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_SERVER: 193.2.72.46
+      DEPLOY_USER: biolab
+
+    steps:
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts
+
+      - name: Trigger deploy script over SSH
+        run: |
+          ARGS=""
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            ARGS="${{ github.head_ref }}"
+          fi
+          ssh -o StrictHostKeyChecking=yes $DEPLOY_USER@$DEPLOY_SERVER "${{ github.repository }}" $ARGS
+
