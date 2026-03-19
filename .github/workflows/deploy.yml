@@ -2,13 +2,23 @@ name: Shared Deploy Workflow
 
 on:
   workflow_call:
+    inputs:
+      site_url:
+        description: 'The base URL to prepend to paths'
+        required: false
+        default: 'https://notes.biolab.si/'
+        type: string
     secrets:
       SSH_KEY:
         required: true
 
+
 jobs:
   deploy:
+    name: ${{ github.event_name == 'push' && 'Deployment' || 'Test deployment' }}
     runs-on: ubuntu-latest
+    outputs:
+      captured_urls: ${{ steps.deploy.outputs.urls }}
     env:
       DEPLOY_SERVER: 193.2.72.46
       DEPLOY_USER: biolab
@@ -22,10 +32,33 @@ jobs:
           ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts
 
       - name: Trigger deploy script over SSH
+        id: deploy
         run: |
           ARGS=""
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             ARGS="${{ github.head_ref }}"
           fi
-          ssh -o StrictHostKeyChecking=yes $DEPLOY_USER@$DEPLOY_SERVER "${{ github.repository }}" $ARGS
+          ssh -o StrictHostKeyChecking=yes $DEPLOY_USER@$DEPLOY_SERVER "${{ github.repository }}" $ARGS > full_output.txt
+          SITE="${{ inputs.site_url }}"
+          # grep finds links, sed replaces prefix, tr flattens,
+          # xargs trims the result if there are not results and tr adds a trailing space
+          # || true is necessary because grep return exit code 1 when it finds nothing
+          URLS=$(grep '^#LINK#' full_output.txt | sed "s|^#LINK#|$SITE|" | tr '\n' ' ' | xargs || true)
+          echo "urls=$URLS" >> $GITHUB_OUTPUT
 
+          grep -v '^#LINK#' full_output.txt || true
+
+  check-links:
+    name: Broken links checker
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && needs.deploy.outputs.captured_urls != ''
+    steps:
+      - name: Check links after deployment
+        uses: JustinBeckwith/linkinator-action@v2
+        with:
+          paths: ${{ needs.deploy.outputs.captured_urls }}
+          recurse: false
+          timeout: 5000
+          retry: false
+          retryErrors: false
