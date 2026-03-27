@@ -26,6 +26,14 @@ const CONCURRENCY = 10;
           let response;
           try {
             if (!sourceUrl) {
+              await page.route('**/*', (route) => {
+                const url = route.request().url();
+                const type = route.request().resourceType();
+                if (type === 'subframe' || url.includes('youtube.com')) {
+                  return route.abort();
+                }
+                route.continue();
+              });
               response = await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
             } else {
               response = await page.context().request.head(url);
@@ -36,7 +44,7 @@ const CONCURRENCY = 10;
             //results[url] = ["CONN", false, sourceUrl];
             continue;
           }
-          console.log(url, response.ok(), response.status());
+
           results[url] = [response.status(), response.ok(), sourceUrl];
           if (response.ok()) {
             const extractedUrls = await page.evaluate(() => {
