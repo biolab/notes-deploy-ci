@@ -34,6 +34,18 @@ const CONCURRENCY = 10;
                 }
                 route.continue();
               });
+              const blockedDomains = [
+                  'youtube.com',
+                  '4beta.orangedatamining.com'
+                  'youtu.be',
+                  'googletagmanager.com',
+                  'google-analytics.com',
+                ];
+
+                const isBlockedDomain = blockedDomains.some(domain => url.includes(domain));
+                if (isBlockedDomain) {
+                  return route.abort();
+                }
               page.on('request', request => console.log(`🚀 Requesting: [${request.resourceType()}] ${request.url()}`));
 
               // (Optional) Print when it finishes so you can see what is STUCK
