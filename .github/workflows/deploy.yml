@@ -74,4 +74,4 @@ jobs:
           npx playwright install chromium --with-deps
 
       - name: Run Link Checker
-        run: node .github/scripts/check-links.js ${{ needs.deploy.outputs.captured_urls }}
+        run: node $GITHUB_WORKSPACE/.github/scripts/check-links.js ${{ needs.deploy.outputs.captured_urls }}
