@@ -86,11 +86,12 @@ const CONCURRENCY = 10;
     .join("");
   }
   markdown += `
-    <details>
-       <summary>List of checked URLs</summary>\n\n
+<details><summary>List of checked URLs</summary>
+
 ${ Object.keys(results).map((s) => `- ${s}\n`).join("") }
-    </details>
-  `;
+
+</details>
+`;
 
   console.log(markdown);
 
