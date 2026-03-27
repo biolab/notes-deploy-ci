@@ -92,10 +92,10 @@ const CONCURRENCY = 10;
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdown);
   }
 
-  if (brokenCount.length > 0) {
-    console.error(`Found ${brokenCount} broken links!`);
+  if (brokenLinks.length > 0) {
+    console.error(`Found ${brokenLinks} broken links!`);
     process.exit(1);
   } else {
-    console.log("All links are healthy!");
+    console.log("All links are healthy.");
   }
 })();
