@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import * as fs from 'fs';
 
-const CONCURRENCY = 10;
+const CONCURRENCY = 1;
 
 
 (async () => {
