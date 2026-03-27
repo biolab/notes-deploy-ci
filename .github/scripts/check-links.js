@@ -74,11 +74,15 @@ const CONCURRENCY = 10;
   await Promise.all(workerPool);
   await browser.close();
 
-  let markdown = `## 🔗 Broken Link Checker Results\n\n`;
-  markdown += `| Status | Code | URL |\n|---|---|---|\n`;
-  markdown += Object.entries(results)
-    .sort(([url1, [, ok1]], [url2, [, ok2]]) => !ok1 && ok2 || url1 < url2 ? -1 : 1)
-    .map(([url, [status, ok, sourceUrl]]) => `| ${ok ? '✅' : '❌'} ${status} | ${url} | ${sourceUrl} |\n`)
+  const brokenLinks = Object.values(results).filter(([, ok]) => !ok);
+
+  let markdown = `\n## 🔗 Broken Link Checker Results\n\n`;
+
+  if (brokenLinks.length > 0) {
+      markdown += `| Code | URL | source URL\n|---|---|---|\n`;
+      markdown += Object.entries(results)
+        .filter([, ok] => !ok)
+        .map(([url, [status,, sourceUrl]]) => `| ${status} | ${url} | ${sourceUrl} |\n`)
     .join("");
 
   console.log(markdown);
@@ -86,8 +90,8 @@ const CONCURRENCY = 10;
   if (process.env.GITHUB_STEP_SUMMARY) {
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdown);
   }
-  const brokenCount = Object.values(results).filter(([, ok]) => !ok).length;
-  if (brokenCount > 0) {
+
+  if (brokenCount.length > 0) {
     console.error(`Found ${brokenCount} broken links!`);
     process.exit(1);
   } else {
