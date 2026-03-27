@@ -81,7 +81,7 @@ const CONCURRENCY = 10;
   if (brokenLinks.length > 0) {
       markdown += `| Code | URL | source URL\n|---|---|---|\n`;
       markdown += Object.entries(results)
-        .filter([, ok] => !ok)
+        .filter(([, ok]) => !ok)
         .map(([url, [status,, sourceUrl]]) => `| ${status} | ${url} | ${sourceUrl} |\n`)
     .join("");
 
