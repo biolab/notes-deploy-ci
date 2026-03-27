@@ -34,6 +34,11 @@ const CONCURRENCY = 10;
                 }
                 route.continue();
               });
+              page.on('request', request => console.log(`🚀 Requesting: [${request.resourceType()}] ${request.url()}`));
+
+              // (Optional) Print when it finishes so you can see what is STUCK
+              page.on('requestfinished', request => console.log(`✅ Finished: ${request.url()}`));
+              page.on('requestfailed', request => console.log(`❌ Failed: ${request.url()}`));
               response = await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
             } else {
               response = await page.context().request.head(url);
