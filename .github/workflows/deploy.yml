@@ -53,12 +53,15 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && needs.deploy.outputs.captured_urls != ''
+    env:
+          SSH_KEY_SECRET: ${{ secrets.SSH_KEY }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: biolab/notes-deploy-ci
-          ssh-key: ${{ secrets.SSH_KEY }}
+          ssh-key: ${{ env.SSH_KEY_SECRET }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
