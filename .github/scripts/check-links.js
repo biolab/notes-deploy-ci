@@ -36,7 +36,7 @@ const CONCURRENCY = 10;
               });
               const blockedDomains = [
                   'youtube.com',
-                  '4beta.orangedatamining.com'
+                  '4beta.orangedatamining.com',
                   'youtu.be',
                   'googletagmanager.com',
                   'google-analytics.com',
