@@ -32,7 +32,8 @@ const CONCURRENCY = 10;
             }
           }
           catch (err) {
-            results[url] = [err.message ? err.message.split('\n')[0] : 'Unknown Error', false, sourceUrl];
+            // results[url] = [err.message ? err.message.split('\n')[0] : 'Unknown Error', false, sourceUrl];
+            results[url] = ["CONN", false, sourceUrl];
             continue;
           }
           results[url] = [response.status(), response.ok(), sourceUrl];
@@ -76,12 +77,12 @@ const CONCURRENCY = 10;
 
   const brokenLinks = Object.values(results).filter(([, ok]) => !ok);
 
-  let markdown = `\n## 🔗 Broken Link Checker Results\n\n`;
+  let markdown = `\n## Broken Link Checker Results\n\n`;
 
   if (brokenLinks.length > 0) {
-      markdown += `| Code | URL | source URL\n|---|---|---|\n`;
+      markdown += `| Code | URL | source URL |\n|---|---|---|\n`;
       markdown += Object.entries(results)
-        .filter(([, ok]) => !ok)
+        .filter(([, [, ok]]) => !ok)
         .map(([url, [status,, sourceUrl]]) => `| ${status} | ${url} | ${sourceUrl} |\n`)
     .join("");
   }
@@ -93,7 +94,7 @@ const CONCURRENCY = 10;
   }
 
   if (brokenLinks.length > 0) {
-    console.error(`Found ${brokenLinks} broken links!`);
+    console.error(`Found ${brokenLinks.length} broken links!`);
     process.exit(1);
   } else {
     console.log("All links are healthy.");
