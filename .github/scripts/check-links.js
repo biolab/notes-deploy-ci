@@ -26,14 +26,14 @@ const CONCURRENCY = 10;
           let response;
           try {
             if (!sourceUrl) {
-              response = await page.goto(url, { waitUntil: 'networkidle', timeout: 10000 });
+              response = await page.goto(url, { timeout: 30000 });
             } else {
               response = await page.request.head(url);
             }
           }
           catch (err) {
-            // results[url] = [err.message ? err.message.split('\n')[0] : 'Unknown Error', false, sourceUrl];
-            results[url] = ["CONN", false, sourceUrl];
+            results[url] = [err.message ? err.message.split('\n')[0] : 'Unknown Error', false, sourceUrl];
+            //results[url] = ["CONN", false, sourceUrl];
             continue;
           }
           results[url] = [response.status(), response.ok(), sourceUrl];
