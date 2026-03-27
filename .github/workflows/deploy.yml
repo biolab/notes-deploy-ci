@@ -54,11 +54,20 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && needs.deploy.outputs.captured_urls != ''
     steps:
-      - name: Check links after deployment
-        uses: JustinBeckwith/linkinator-action@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          paths: ${{ needs.deploy.outputs.captured_urls }}
-          recurse: false
-          timeout: 5000
-          retry: false
-          retryErrors: false
+          repository: biolab/notes-deploy-ci
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright & Chromium
+        run: |
+          npm install playwright
+          npx playwright install chromium --with-deps
+
+      - name: Run Link Checker
+        run: node .github/scripts/check-links.js ${{ needs.deploy.outputs.captured_urls }}
