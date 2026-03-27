@@ -84,6 +84,7 @@ const CONCURRENCY = 10;
         .filter(([, ok]) => !ok)
         .map(([url, [status,, sourceUrl]]) => `| ${status} | ${url} | ${sourceUrl} |\n`)
     .join("");
+  }
 
   console.log(markdown);
 
