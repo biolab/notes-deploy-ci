@@ -77,8 +77,7 @@ const CONCURRENCY = 10;
 
   const brokenLinks = Object.values(results).filter(([, ok]) => !ok);
 
-  let markdown = `\n## Broken Link Checker Results\n\n`;
-
+  let markdown = `\n\n`;
   if (brokenLinks.length > 0) {
       markdown += `| Code | URL | source URL |\n|---|---|---|\n`;
       markdown += Object.entries(results)
@@ -86,6 +85,12 @@ const CONCURRENCY = 10;
         .map(([url, [status,, sourceUrl]]) => `| ${status} | ${url} | ${sourceUrl} |\n`)
     .join("");
   }
+  markdown += `
+    <details>
+       <summary>List of checked URLs</summary>\n\n
+${ Object.keys(results).map((s) => `- ${s}\n`).join("") }
+    </details>
+  `;
 
   console.log(markdown);
 
