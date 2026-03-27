@@ -29,6 +29,7 @@ const CONCURRENCY = 10;
               response = await page.goto(url, { timeout: 30000 });
             } else {
               response = await page.request.head(url);
+              console.log(url, response.ok(), response.status());
             }
           }
           catch (err) {
