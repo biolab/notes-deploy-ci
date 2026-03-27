@@ -32,8 +32,8 @@ const CONCURRENCY = 10;
             }
           }
           catch (err) {
-            results[url] = [err.message ? err.message.split('\n')[0] : 'Unknown Error', false, sourceUrl];
-            //results[url] = ["CONN", false, sourceUrl];
+            //results[url] = [err.message ? err.message.split('\n')[0] : 'Unknown Error', false, sourceUrl];
+            results[url] = ["CONN", false, sourceUrl];
             continue;
           }
           results[url] = [response.status(), response.ok(), sourceUrl];
