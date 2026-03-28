@@ -103,19 +103,24 @@ const blockedDomains = [
 
   const brokenLinks = Object.values(results).filter(([, ok]) => !ok);
 
-  let markdown = `\n\n`;
-  if (brokenLinks.length > 0) {
-      markdown += `| Code | URL | source URL |\n|---|---|---|\n`;
-      markdown += Object.entries(results)
-        .filter(([, [, ok]]) => !ok)
-        .map(([url, [status,, sourceUrl]]) => `| ${status} | ${url} | ${sourceUrl} |\n`)
-    .join("");
+  let markdown = `<h2>Results</h2>\n`
+  markdown += `\n**Report:** Checked ${results.length} links from ${urlsToCheck.length} pages.\n\n`
+
+  if (brokenLinks.length == 0) {
+    markdown += "\n**Status:** ✅ All links are valid.\n"
   }
-  markdown += `
-<details><summary>List of checked URLs</summary>
-
-${ Object.keys(results).map((s) => `- ${s}\n`).join("") }
-
+  else {
+    markdown += "\n**Status:** ❌ Found broken links.\n\n"
+    markdown += `| Code | URL | source URL |\n|---|---|---|\n`;
+    markdown += Object.entries(results)
+      .filter(([, [, ok]]) => !ok)
+      .map(([url, [status,, sourceUrl]]) => `| ${status} | ${url} | ${sourceUrl} |\n`)
+  .join("");
+}
+  markdown += `\n<details><summary>List of checked URLs</summary>
+  <ul>
+${ Object.keys(results).map((s) => `<li>${s}</li>`).join("\n") }
+</ul>
 </details>
 `;
 
