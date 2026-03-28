@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import * as fs from 'fs';
 
-const CONCURRENCY = 1;
+const CONCURRENCY = 10;
 const blockedDomains = [
   'youtube.com',
   '4beta.orangedatamining.com',
@@ -78,7 +78,6 @@ const blockedDomains = [
               })
               .filter(Boolean);
           });
-          console.log(extractedUrls);
           for(const subUrl of extractedUrls) {
             await probe(subUrl, url);
           }
