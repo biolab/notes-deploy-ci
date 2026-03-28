@@ -104,7 +104,7 @@ const blockedDomains = [
   const brokenLinks = Object.values(results).filter(([, ok]) => !ok);
 
   let markdown = `<h2>Results</h2>\n`
-  markdown += `\n**Report:** Checked ${results.length} links from ${urlsToCheck.length} pages.\n\n`
+  markdown += `\n**Report:** Checked ${Object.keys(results).length} links from ${urlsToCheck.length} pages.\n\n`
 
   if (brokenLinks.length == 0) {
     markdown += "\n**Status:** ✅ All links are valid.\n"
