@@ -38,7 +38,22 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             ARGS="${{ github.head_ref }}"
           fi
-          ssh -o StrictHostKeyChecking=yes $DEPLOY_USER@$DEPLOY_SERVER "${{ github.repository }}" $ARGS
+
+          set +e
+          ssh -o StrictHostKeyChecking=yes \
+            "$DEPLOY_USER@$DEPLOY_SERVER" \
+            "${{ github.repository }}" $ARGS \
+            > full_output.txt 2>&1
+          status=$?
+          set -e
+          
+          if [ $status -ne 0 ]; then
+            cat full_output.txt
+            exit $status
+          fi
+
+          #ssh -o StrictHostKeyChecking=yes $DEPLOY_USER@$DEPLOY_SERVER "${{ github.repository }}" $ARGS | tee full_output
+          
           SITE="${{ inputs.site_url }}"
           # grep finds links, sed replaces prefix, tr flattens,
           # xargs trims the result if there are not results and tr adds a trailing space
@@ -46,7 +61,7 @@ jobs:
           URLS=$(grep '^#LINK#' full_output.txt | sed "s|^#LINK#|$SITE|" | tr '\n' ' ' | xargs || true)
           echo "urls=$URLS" >> $GITHUB_OUTPUT
 
-          grep -v '^#LINK#' full_output.txt || true
+          # grep -v '^#LINK#' full_output.txt || true
 
   check-links:
     name: Broken links che
