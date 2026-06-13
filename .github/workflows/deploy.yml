@@ -113,7 +113,10 @@ jobs:
     steps:
       - name: Show deployment warnings
         run: |
-          WARNINGS="${{ needs.deploy.outputs.warnings }}"
+          WARNINGS=$(cat <<'EOF'
+          ${{ needs.deploy.outputs.warnings }}
+          EOF
+          )
           if [ -n "$WARNINGS" ]; then
             {
               echo "## Deployment warnings"
