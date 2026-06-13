@@ -118,8 +118,7 @@ jobs:
           ${{ needs.deploy.outputs.warnings }}
           EOF
           )
-          echo "LENGTH=$${#WARNINGS}"
-          echo "REPR=$(printf '%q' "$WARNINGS")"
+
           if [ -n "$WARNINGS" ]; then
             {
               echo "## Deployment warnings"
