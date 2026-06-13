@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       captured_urls: ${{ steps.deploy.outputs.urls }}
+      warnings: ${{ steps.deploy.outputs.warnings }}
     env:
       DEPLOY_SERVER: 193.2.72.46
       DEPLOY_USER: biolab
@@ -46,14 +47,15 @@ jobs:
             > full_output.txt 2>&1
           status=$?
           set -e
-          
+
           if [ $status -ne 0 ]; then
             cat full_output.txt
             exit $status
           fi
 
           #ssh -o StrictHostKeyChecking=yes $DEPLOY_USER@$DEPLOY_SERVER "${{ github.repository }}" $ARGS | tee full_output
-          
+
+          # Prepare URLs for job check-links
           SITE="${{ inputs.site_url }}"
           # grep finds links, sed replaces prefix, tr flattens,
           # xargs trims the result if there are not results and tr adds a trailing space
@@ -61,7 +63,19 @@ jobs:
           URLS=$(grep '^#LINK#' full_output.txt | sed "s|^#LINK#|$SITE|" | tr '\n' ' ' | xargs || true)
           echo "urls=$URLS" >> $GITHUB_OUTPUT
 
-          # grep -v '^#LINK#' full_output.txt || true
+          # Prepare warnings for job show-warnings
+          WARNINGS=$(awk '
+              found { print }
+              /^\*\* Warnings \*\*$/ { found = 1 }
+          ' full_output.txt)
+
+          {
+            echo 'warnings<<EOF'
+            echo "$WARNINGS"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+          grep -v '^#LINK#' full_output.txt || true
 
   check-links:
     name: Broken links che
@@ -90,3 +104,24 @@ jobs:
 
       - name: Run Link Checker
         run: node $GITHUB_WORKSPACE/.github/scripts/check-links.js ${{ needs.deploy.outputs.captured_urls }}
+
+  show-warnings:
+    name: Deployment warnings
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Show deployment warnings
+        run: |
+          WARNINGS="${{ needs.deploy.outputs.warnings }}"
+          if [ -n "$WARNINGS" ]; then
+            {
+              echo "## Deployment warnings"
+              echo
+              echo '```'
+              printf '%s\n' "$WARNINGS"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            exit 1
+          fi
