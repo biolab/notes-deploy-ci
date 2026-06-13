@@ -65,8 +65,9 @@ jobs:
 
           # Prepare warnings for job show-warnings
           WARNINGS=$(awk '
+              /^\*\* Warnings \*\*$/ { found = 1; next }
+              /^Done in / { exit }
               found { print }
-              /^\*\* Warnings \*\*$/ { found = 1 }
           ' full_output.txt)
 
           {
