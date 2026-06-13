@@ -118,8 +118,9 @@ jobs:
           ${{ needs.deploy.outputs.warnings }}
           EOF
           )
-
           if [ -n "$WARNINGS" ]; then
+            echo "## Deployment warnings: "
+            echo "$WARNINGS"
             {
               echo "## Deployment warnings"
               echo
