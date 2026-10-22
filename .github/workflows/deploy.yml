@@ -60,7 +60,7 @@ jobs:
           # grep finds links, sed replaces prefix, tr flattens,
           # xargs trims the result if there are not results and tr adds a trailing space
           # || true is necessary because grep return exit code 1 when it finds nothing
-          URLS=$(grep '^#LINK#' full_output.txt | sed "s|^#LINK#|$SITE|" | tr '\n' ' ' | xargs || true)
+          URLS=$(grep '^#LINK#' full_output.txt | sed "s|^#LINK#||sed "s|#HOST#|$SITE|" | tr '\n' ' ' | xargs || true)
           echo "urls=$URLS" >> $GITHUB_OUTPUT
 
           # Prepare warnings for job show-warnings
@@ -79,7 +79,7 @@ jobs:
           grep -v '^#LINK#' full_output.txt || true
 
   check-links:
-    name: Broken links che
+    name: Broken links checker
     needs: deploy
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && needs.deploy.outputs.captured_urls != ''
