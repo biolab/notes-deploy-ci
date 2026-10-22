@@ -63,6 +63,10 @@ jobs:
           URLS=$(grep '^#LINK#' full_output.txt | sed "s|^#LINK#|$SITE|" | tr '\n' ' ' | xargs || true)
           echo "urls=$URLS" >> $GITHUB_OUTPUT
 
+          awk '/\*\*START_SUMMARY\*\*/ { found=1; next }
+               /\*\*END_SUMMARY\*\*/ { found=0; exit }
+               found' full_output.txt >> "$GITHUB_STEP_SUMMARY"
+               
           # Prepare warnings for job show-warnings
           WARNINGS=$(awk '
               /^\*\* Warnings \*\*$/ { found = 1; next }
