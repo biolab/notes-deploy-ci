@@ -66,7 +66,14 @@ jobs:
           awk '/\*\*START_SUMMARY\*\*/ { found=1; next }
                /\*\*END_SUMMARY\*\*/ { found=0; exit }
                found' full_output.txt >> "$GITHUB_STEP_SUMMARY"
-               
+
+          awk '/\*\*START_SUMMARY\*\*/ { found=1; next }
+               /\*\*END_SUMMARY\*\*/ { found=0; exit }
+               found' full_output.txt > extracted_summary.txt
+          
+          wc -l extracted_summary.txt
+          head -5 extracted_summary.txt
+
           # Prepare warnings for job show-warnings
           WARNINGS=$(awk '
               /^\*\* Warnings \*\*$/ { found = 1; next }
